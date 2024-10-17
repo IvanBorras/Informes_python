@@ -82,30 +82,48 @@ class ModernApp(QtWidgets.QWidget):
         # Ajustar el tamaño de las columnas al contenido
         for j in range(self.data.shape[1]):
             self.table_widget.resizeColumnToContents(j)
-
     def process_data(self):
-        """Procesa los datos en función de la estructura del cliente."""
         selected_client = self.client_combo_box.currentText()
 
         if self.data is not None:
-            results = calculate_totals(self.data)
-            percentages = calculate_percentage(self.data)
+            results = calculate_totals(self.data, service_col=0, total_col=-1)  
+            percentages = calculate_percentage(self.data, service_col=0, total_col=-1)
 
             if selected_client:
-                # Obtener la estructura del cliente
-                self.customer_structure = self.customers_data.get(selected_client)
-
-                if self.customer_structure is not None:
-                    # Adaptar los datos del Excel a la estructura del cliente
-                    self.insert_results_into_structure(results, percentages)
+                customer_structure = self.customers_data.get(selected_client)
+                if customer_structure is not None:
+                    self.insert_results_into_structure(results, percentages, customer_structure)
                 else:
                     QtWidgets.QMessageBox.warning(self, "Advertencia", "No se encontró la estructura del cliente.")
             else:
                 QtWidgets.QMessageBox.warning(self, "Advertencia", "Seleccione un cliente primero.")
         else:
             QtWidgets.QMessageBox.warning(self, "Advertencia", "Cargue el archivo Excel primero.")
+            
+    def insert_results_into_structure(self, results, percentages, customer_structure):
+    # Obtener la estructura del cliente seleccionado
+        customer_structure = self.customers_data.get(self.client_combo_box.currentText())
 
-    def insert_results_into_structure(self, results, percentages):
+        # Crear una tabla para mostrar los resultados
+        table = QtWidgets.QTableWidget()
+        table.setColumnCount(3)
+        table.setHorizontalHeaderLabels(["Servicio", "Consumo (kWh)", "Porcentaje"])
+
+        # Llenar la tabla con los datos
+        row = 0
+        for service, consumption in results['servicios_consumo'].items():
+            if service in customer_structure['servicios']:
+                percentage = percentages.get(service, 0)  # Obtener el porcentaje
+                table.insertRow(row)
+                table.setItem(row, 0, QtWidgets.QTableWidgetItem(service))
+                table.setItem(row, 1, QtWidgets.QTableWidgetItem(str(consumption)))
+                table.setItem(row, 2, QtWidgets.QTableWidgetItem(f"{percentage:.2f}%"))
+                row += 1
+
+        # Agregar la tabla a la interfaz (por ejemplo, en un layout)
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(table)
+        self.setLayout(layout)
         """Inserta los resultados calculados en la estructura definida."""
         total_consumo = results.get('total_consumo')
         servicios_consumo = results.get('servicios_consumo')
@@ -114,7 +132,7 @@ class ModernApp(QtWidgets.QWidget):
         for service, percentage in percentages.items():
             result_text += f"{service}: {percentage:.2f}% del consumo total\n"
 
-        self.result_label.setText(result_text)
+            self.result_label.setText(result_text)
 
     def reset_app(self):
         """Reinicia la aplicación limpiando los datos y resultados."""
