@@ -1,0 +1,41 @@
+{
+    "Matadero Madrid": {
+      "FRIO": {
+        "Servicios Central de Carnes": {},
+        "Servicios Dani Meat": {},
+        "Servicios Gancedo": {},
+        "Servicios Matadero": {}
+      },
+      "OFICINAS": {
+        "Cafeteria": {},
+        "Matadero": {},
+        "Gancedo": {},
+        "Cartisa": {},
+        "Comedor": {}
+      },
+      "AIRE": {
+        "Compresor Aire": {}
+      },
+      "SERVICIOS": {
+        "Central carnes": {},
+        "Bombas presión": {},
+        "Depuradora": {},
+        "Matadero": {}
+      }
+    },
+
+    "Pinchos Jovi": {
+      "pepino": {
+        "Servicios Central de pepinos": {}
+        
+      },
+      "Oficinas": {
+        "Cafeteria": {},
+        "Matadero": {},
+        "Gancedo": {},
+        "Cartisa": {},
+        "Comedor": {}
+      }
+    }
+}
+  

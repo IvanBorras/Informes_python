@@ -1,0 +1,26 @@
+main.py                     # Archivo principal que ejecuta la aplicación
+gui/
+|    ├── __init__.py              Inicializador de módulo GUI
+|    ├── app.py                   Definición de la interfaz gráfica # Define la estructura principal de la interfaz utilizando Tkinter. Incluye los botones, menús y áreas de visualización. -----
+|    ├── table_widget.py          Lógica para mostrar y seleccionar datos en una tabla  # define la lógica para mostrar los datos en una tabla dentro de la interfaz gráfica. También incluye funcionalidades para seleccionar celdas o filas.-----
+|    └── file_loader.py           Módulo para cargar y validar archivos Excel  # lógica para cargar y validar archivos Excel. Aquí también puedes definir extensiones permitidas y otras reglas de validación. -----
+logic/
+│   ├── __init__.py               Inicializador de módulo de lógica
+│   ├── calculations.py           Cálculos del consumo total, porcentaje, etc.    # Aquí se implementan los cálculos como el total de consumo, porcentaje destinado a cada máquina, etc.
+│   └── excel_handler.py          Manejo y procesamiento de datos de Excel con Pandas  
+│
+├── assets/                       Archivos adicionales (imágenes, íconos, etc.)
+│   └── logo.png                  Un ejemplo de logo, si tienes uno para la app
+│
+└── requirements.txt              Lista de dependencias (Pandas, Tkinter, etc.)
+
+
+
+__init__.py
+Este archivo puede estar vacío, solo se utiliza para indicar que el directorio debe ser tratado como un paquete.
+
+
+panda es para leer Excel
+Tkinter es para hacer una interfaz
+PyQt5 otra interfaz mas moderna
+

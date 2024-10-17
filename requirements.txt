@@ -1,0 +1,4 @@
+pandas
+openpyxl   # Para trabajar con archivos Excel
+
+
