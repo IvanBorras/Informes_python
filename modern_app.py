@@ -55,12 +55,10 @@ class ModernApp(QtWidgets.QWidget):
         # Área para mostrar los datos en formato de tabla
         self.table_widget = QtWidgets.QTableWidget()
         layout.addWidget(self.table_widget)
-
-        # Área para mostrar los resultados en formato de tabla
-        self.results_table = QtWidgets.QTableWidget()
-        layout.addWidget(self.results_table)
-
         self.setLayout(layout)
+        
+        
+        
 
     def load_customers(self):
         try:
