@@ -1,15 +1,16 @@
-from PyQt5 import QtWidgets
 import sys
 import pandas as pd
-from calculator import calculate_totals, calculate_percentage  # Asegúrate de tener estas funciones
+from PyQt5 import QtWidgets
 import json
+from calculator import Calculator  # Importar la clase Calculator
 
 class ModernApp(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
-        self.init_ui()
         self.data = None
-        self.customer_structure = None
+        self.customers_data = {}  # Estructura JSON para los clientes
+        self.calculator = Calculator()  # Instancia de la clase Calculator
+        self.init_ui()
 
     def init_ui(self):
         self.setWindowTitle('Calculadora de Consumo')
@@ -28,94 +29,146 @@ class ModernApp(QtWidgets.QWidget):
         load_button = QtWidgets.QPushButton('Cargar Excel')
         load_button.clicked.connect(self.load_data)
         layout.addWidget(load_button)
-
-        # Botón para procesar el Excel en función de la estructura del cliente
-        process_button = QtWidgets.QPushButton('Procesar Datos')
-        process_button.clicked.connect(self.process_data)
-        layout.addWidget(process_button)
-
+        
         # Botón para reiniciar la aplicación (limpiar datos y resultados)
         reset_button = QtWidgets.QPushButton('Reiniciar')
         reset_button.clicked.connect(self.reset_app)
         layout.addWidget(reset_button)
 
+        # Botones para calcular
+        calculate_total_button = QtWidgets.QPushButton('Calcular Consumo Total')
+        calculate_total_button.clicked.connect(self.calculate_total)
+        layout.addWidget(calculate_total_button)
+
+        calculate_percentage_button = QtWidgets.QPushButton('Calcular %')
+        calculate_percentage_button.clicked.connect(self.calculate_percentage)
+        layout.addWidget(calculate_percentage_button)
+
+        calculate_relation_button = QtWidgets.QPushButton('Calcular Relación de Consumo')
+        calculate_relation_button.clicked.connect(self.calculate_relation)
+        layout.addWidget(calculate_relation_button)
+
+        calculate_total_value_button = QtWidgets.QPushButton('Calcular Total')
+        calculate_total_value_button.clicked.connect(self.calculate_total_value)
+        layout.addWidget(calculate_total_value_button)
+
         # Área para mostrar los datos en formato de tabla
         self.table_widget = QtWidgets.QTableWidget()
         layout.addWidget(self.table_widget)
-
-        # Etiqueta para mostrar los resultados
-        self.result_label = QtWidgets.QLabel('')
-        layout.addWidget(self.result_label)
-
-        # Establecer el layout en la ventana principal
         self.setLayout(layout)
+        
+        
+        
 
     def load_customers(self):
-        """Carga la lista de clientes del archivo JSON."""
-        with open('customers.json', 'r') as f:
-            self.customers_data = json.load(f)
-
-        # Agregar los nombres de los clientes al combo box
-        self.client_combo_box.addItems(self.customers_data.keys())
+        try:
+            with open('customers.json', 'r') as f:
+                self.customers_data = json.load(f)
+                self.client_combo_box.addItems(self.customers_data.keys())
+        except FileNotFoundError:
+            print("El archivo 'customers.json' no fue encontrado.")
 
     def load_data(self):
-        """Carga el archivo Excel seleccionado por el usuario."""
-        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Cargar Excel", "", "Excel Files (*.xlsx)")
-        if file_path:
-            self.data = pd.read_excel(file_path)  # Carga el archivo en un DataFrame de Pandas
-            QtWidgets.QMessageBox.information(self, "Éxito", "Archivo cargado correctamente.")
+        options = QtWidgets.QFileDialog.Options()
+        file_name, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Cargar Excel", "", "Excel Files (*.xls *.xlsx);;All Files (*)", options=options)
+        if file_name:
+            self.data = pd.read_excel(file_name)
+            self.populate_table()
             
-            # Mostrar los datos en el QTableWidget
-            self.show_data_in_table()
-
-    def show_data_in_table(self):
-        """Muestra los datos del DataFrame en el QTableWidget."""
-        self.table_widget.setRowCount(self.data.shape[0])
+            
+    def populate_table(self):
+        self.table_widget.setRowCount(0)  # Limpiar tabla
         self.table_widget.setColumnCount(self.data.shape[1])
+        self.table_widget.setHorizontalHeaderLabels(self.data.columns)
 
-        for i in range(self.data.shape[0]):
-            for j in range(self.data.shape[1]):
-                value = self.data.iat[i, j]
-                item = QtWidgets.QTableWidgetItem(str(value) if pd.notna(value) else "")
-                self.table_widget.setItem(i, j, item)
+        for index, row in self.data.iterrows():
+            row_position = self.table_widget.rowCount()
+            self.table_widget.insertRow(row_position)
+            for column in range(self.data.shape[1]):
+                self.table_widget.setItem(row_position, column, QtWidgets.QTableWidgetItem(str(row.iloc[column])))
 
-        # Ajustar el tamaño de las columnas al contenido
-        for j in range(self.data.shape[1]):
-            self.table_widget.resizeColumnToContents(j)
 
-    def process_data(self):
-        """Procesa los datos en función de la estructura del cliente."""
+    
+    def get_selected_rows(self):
+        return [index.row() for index in self.table_widget.selectedIndexes()]
+
+    def insert_into_json(self, selected_services, value, key):
         selected_client = self.client_combo_box.currentText()
+        if selected_client not in self.customers_data:
+            self.customers_data[selected_client] = {}
 
-        if self.data is not None:
-            results = calculate_totals(self.data)
-            percentages = calculate_percentage(self.data)
+        if key not in self.customers_data[selected_client]:
+            self.customers_data[selected_client][key] = {}
 
-            if selected_client:
-                # Obtener la estructura del cliente
-                self.customer_structure = self.customers_data.get(selected_client)
+        self.customers_data[selected_client][key][selected_services] = value
 
-                if self.customer_structure is not None:
-                    # Adaptar los datos del Excel a la estructura del cliente
-                    self.insert_results_into_structure(results, percentages)
-                else:
-                    QtWidgets.QMessageBox.warning(self, "Advertencia", "No se encontró la estructura del cliente.")
-            else:
-                QtWidgets.QMessageBox.warning(self, "Advertencia", "Seleccione un cliente primero.")
-        else:
-            QtWidgets.QMessageBox.warning(self, "Advertencia", "Cargue el archivo Excel primero.")
+    def update_results_table(self):
+        self.results_table.setRowCount(0)  # Limpiar tabla
 
-    def insert_results_into_structure(self, results, percentages):
-        """Inserta los resultados calculados en la estructura definida."""
-        total_consumo = results.get('total_consumo')
-        servicios_consumo = results.get('servicios_consumo')
+        for client, data in self.customers_data.items():
+            for key, services in data.items():
+                for service, value in services.items():
+                    row_position = self.results_table.rowCount()
+                    self.results_table.insertRow(row_position)
+                    self.results_table.setItem(row_position, 0, QtWidgets.QTableWidgetItem(client))
+                    self.results_table.setItem(row_position, 1, QtWidgets.QTableWidgetItem(key))
+                    self.results_table.setItem(row_position, 2, QtWidgets.QTableWidgetItem(service))
+                    self.results_table.setItem(row_position, 3, QtWidgets.QTableWidgetItem(str(value)))
 
-        result_text = f"Consumo Total: {total_consumo:.2f} kWh\n"
-        for service, percentage in percentages.items():
-            result_text += f"{service}: {percentage:.2f}% del consumo total\n"
+    
+    def calculate_total(self):
+        selected_rows = self.get_selected_rows()
+        if not selected_rows:
+            QtWidgets.QMessageBox.warning(self, "Advertencia", "Seleccione al menos una fila.")
+            return
+        
+        # Sumar todas las columnas de las filas seleccionadas
+        total_consumo = self.data.iloc[selected_rows, 2:].sum()  # Suponiendo que la primera columna no se suma
 
-        self.result_label.setText(result_text)
+        selected_services = ", ".join(self.data.iloc[row, 1] for row in selected_rows)  # Obtener nombres de los servicios
 
+        self.insert_into_json(selected_services, total_consumo, "consumo total")
+        self.update_results_table()
+
+    
+    
+    
+    def calculate_percentage(self):
+        selected_rows = self.get_selected_rows()
+        if not selected_rows:
+            QtWidgets.QMessageBox.warning(self, "Advertencia", "Seleccione al menos una fila.")
+            return
+
+        percentage = self.calculator.calculate_percentage(self.data, selected_rows)
+        selected_services = ", ".join(self.data.iloc[row, 0] for row in selected_rows)
+
+        self.insert_into_json(selected_services, percentage, "%")
+        self.update_results_table()
+
+    def calculate_relation(self):
+        selected_rows = self.get_selected_rows()
+        if not selected_rows:
+            QtWidgets.QMessageBox.warning(self, "Advertencia", "Seleccione al menos una fila.")
+            return
+
+        relation_consumo = self.calculator.calculate_relation(self.data, selected_rows)
+        selected_services = ", ".join(self.data.iloc[row, 0] for row in selected_rows)
+
+        self.insert_into_json(selected_services, relation_consumo, "relacion consumo")
+        self.update_results_table()
+
+    def calculate_total_value(self):
+        selected_rows = self.get_selected_rows()
+        if not selected_rows:
+            QtWidgets.QMessageBox.warning(self, "Advertencia", "Seleccione al menos una fila.")
+            return
+
+        total_value = self.calculator.calculate_total_value(self.data, selected_rows)
+        selected_services = ", ".join(self.data.iloc[row, 0] for row in selected_rows)
+
+        self.insert_into_json(selected_services, total_value, "total")
+        self.update_results_table()
+        
     def reset_app(self):
         """Reinicia la aplicación limpiando los datos y resultados."""
         self.data = None
@@ -125,8 +178,7 @@ class ModernApp(QtWidgets.QWidget):
         self.client_combo_box.setCurrentIndex(0)  # Reinicia la selección de cliente
         QtWidgets.QMessageBox.information(self, "Reinicio", "La aplicación ha sido reiniciada.")
 
-# Ejecutar la aplicación
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     window = ModernApp()
     window.show()

@@ -1,32 +1,25 @@
 import pandas as pd
 
-def calculate_percentage(df):
-    # Asumiendo que la primera columna contiene los servicios y la última columna es el total
-    total_consumo = df.iloc[:, -1].sum()
-    percentages = {}
+class Calculator:
+    @staticmethod
+    def calculate_total(data, selected_rows):
+        return sum(data.iloc[row, -1] for row in selected_rows)
 
-    for index, row in df.iterrows():
-        service_name = row[0]
-        consumption = row[-1] if pd.notna(row[-1]) else 0
+    @staticmethod
+    def calculate_percentage(data, selected_rows):
+        total_consumo = sum(data.iloc[row, -1] for row in selected_rows)
+        total_general = data.iloc[:, -1].sum()
 
-        if total_consumo > 0:
-            percentages[service_name] = (consumption / total_consumo) * 100
+        if total_general > 0:
+            return (total_consumo / total_general) * 100
         else:
-            percentages[service_name] = 0
+            return 0
 
-    return percentages
+    @staticmethod
+    def calculate_relation(data, selected_rows):
+        total_consumo = sum(data.iloc[row, -1] for row in selected_rows)
+        return total_consumo / len(selected_rows) if len(selected_rows) > 0 else 0
 
-def calculate_totals(data):
-    # Asumimos que la última columna es el total de consumo
-    total_consumo = data.iloc[:, -1].sum()
-    servicios_consumo = {}
-
-    for index, row in data.iterrows():
-        service_name = row[0]
-        consumo = row[-1] if pd.notna(row[-1]) else 0
-        servicios_consumo[service_name] = consumo
-
-    return {
-        'total_consumo': total_consumo,
-        'servicios_consumo': servicios_consumo
-    }
+    @staticmethod
+    def calculate_total_value(data, selected_rows):
+        return sum(data.iloc[row, -1] for row in selected_rows)

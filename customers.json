@@ -1,41 +1,67 @@
 {
     "Matadero Madrid": {
       "FRIO": {
-        "Servicios Central de Carnes": {},
-        "Servicios Dani Meat": {},
-        "Servicios Gancedo": {},
-        "Servicios Matadero": {}
+        "Servicios Central de Carnes": {
+          "consumo total": 5.5,
+          "%": 100.0,
+          "relacion consumo": 100.3,
+          "total": 100.0
+        },
+        "Servicios Dani Meat": {
+          "consumo total": 5.5,
+          "%": 100.0,
+          "relacion consumo": 100.3,
+          "total": 100.0
+        },
+        "Servicios Gancedo": {
+          "consumo total": 5.5,
+          "%": 100.0,
+          "relacion consumo": 100.3,
+          "total": 100.0
+        },
+        "Servicios Matadero": {
+          "consumo total": 5.5,
+          "%": 100.0,
+          "relacion consumo": 100.3,
+          "total": 100.0
+        }
       },
       "OFICINAS": {
-        "Cafeteria": {},
-        "Matadero": {},
-        "Gancedo": {},
-        "Cartisa": {},
-        "Comedor": {}
+        "Cafeteria": {"consumo total": 5.5},
+        "Matadero": {"consumo total": 5.5},
+        "Gancedo": {"consumo total": 5.5},
+        "Cartisa": {"consumo total": 5.5},
+        "Comedor": {"consumo total": 5.5}
       },
       "AIRE": {
-        "Compresor Aire": {}
+        "Compresor Aire": {"consumo total": 5.5}
       },
       "SERVICIOS": {
-        "Central carnes": {},
-        "Bombas presión": {},
-        "Depuradora": {},
-        "Matadero": {}
-      }
-    },
-
-    "Pinchos Jovi": {
-      "pepino": {
-        "Servicios Central de pepinos": {}
-        
-      },
-      "Oficinas": {
-        "Cafeteria": {},
-        "Matadero": {},
-        "Gancedo": {},
-        "Cartisa": {},
-        "Comedor": {}
+        "Central carnes": {
+          "consumo total": 5.5,
+          "%": 100.0,
+          "relacion consumo": 100.3,
+          "total": 100.0
+        },
+        "Bombas presión": {
+          "consumo total": 5.5,
+          "%": 100.0,
+          "relacion consumo": 100.3,
+          "total": 100.0
+        },
+        "Depuradora": {
+          "consumo total": 5.5,
+          "%": 100.0,
+          "relacion consumo": 100.3,
+          "total": 100.0
+        },
+        "Matadero": {
+          "consumo total": 5.5,
+          "%": 100.0,
+          "relacion consumo": 100.3,
+          "total": 100.0
+        }
       }
     }
-}
+  }
   
